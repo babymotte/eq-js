@@ -1,0 +1,14 @@
+#canvas {
+    background-color: #333;
+    --font: 13pt 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    --grid-stroke-major: #666;
+    --grid-stroke-minor: #444;
+    --sum-stroke: #f80;
+    --sum-fill: #f954;
+    --band-stroke: #f804;
+    --band-fill: var(--sum-fill);
+    --disabled-bandStroke: #8884;
+    --disabled-bandFill: #8882;
+    --label-gap-top: 32px;
+    --label-gap-left: 64px;
+}
