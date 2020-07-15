@@ -292,7 +292,7 @@ function formatFrequencyLabel(frequency) {
 }
 
 function formatGainLabel(gain) {
-    return gain < 0 ? `${gain} dB` : `+${gain} dB`;
+    return gain <= 0 ? `${gain} dB` : `+${gain} dB`;
 }
 
 function renderCurve(eq, ctx, gainsPerPixel, xOffset, yOffset, width, height) {
