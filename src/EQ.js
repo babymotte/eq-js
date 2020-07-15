@@ -1,3 +1,6 @@
+import React, { Component } from 'react';
+import './EQ.css';
+
 export const BELL = 0;
 export const HIGH_SHELF = 1;
 export const LOW_SHELF = 2;
@@ -14,7 +17,60 @@ const COEFFS = [
     [1.4142, 1.4142, 0, 1, 1, 0]
 ];
 
-export function initEq(eq, canvas, xOffset, yOffset, width, height) {
+export class EqModel {
+
+    constructor(eqData) {
+
+        const bands = [];
+
+        for (let band of eqData.bands) {
+            bands.push({
+                gain: 0,
+                frequency: 1_000,
+                q: 1.0,
+                type: band,
+            })
+        }
+
+        distribute(bands, eqData.minFrequency, eqData.maxFrequency);
+
+        this.minGain = eqData.minGain;
+        this.maxGain = eqData.maxGain;
+        this.minFrequency = eqData.minFrequency;
+        this.maxFrequency = eqData.maxFrequency;
+        this.minQ = eqData.minQ;
+        this.maxQ = eqData.maxQ;
+        this.bands = bands;
+    }
+
+    clients = [];
+
+    updateClients = () => {
+        for (let client of this.clients) {
+            client.update(this);
+        }
+    }
+
+
+}
+
+export class EQ extends Component {
+
+    constructor(props) {
+        super(props);
+        this.canvas = React.createRef();
+        this.eq = props.eq;
+    }
+
+    componentDidMount = () => {
+        const canvas = this.canvas.current;
+        initEq(this.eq, canvas, 0, 0, canvas.width, canvas.height, this.props.displayOnly, this.props.miniature);
+    }
+
+    render = () => <canvas ref={this.canvas} className="EQ" width={this.props.width} height={this.props.height} />
+}
+
+function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniature) {
 
     const elementStyle = window.getComputedStyle(canvas, null);
 
@@ -53,21 +109,27 @@ export function initEq(eq, canvas, xOffset, yOffset, width, height) {
         labelGapTop: labelGapTop,
         labelGapLeft: labelGapLeft,
         font: font,
+        miniature: miniature,
     };
 
-    canvas.addEventListener("contextmenu", e => e.preventDefault());
+    if (!displayOnly) {
 
-    canvas.addEventListener("mousedown", e => handleMouseDown(e, eqHolder));
-    canvas.addEventListener("mouseup", e => handleMouseUp(e, eqHolder));
-    canvas.addEventListener("mousemove", e => handleMouseMove(e, eqHolder));
+        canvas.addEventListener("contextmenu", e => e.preventDefault());
 
-    canvas.addEventListener("touchstart", e => handleMouseDown(e, eqHolder));
-    canvas.addEventListener("touchmove", e => handleMouseUp(e, eqHolder));
-    canvas.addEventListener("touchend", e => handleMouseMove(e, eqHolder));
+        canvas.addEventListener("mousedown", e => handleMouseDown(e, eqHolder));
+        canvas.addEventListener("mouseup", e => handleMouseUp(e, eqHolder));
+        canvas.addEventListener("mousemove", e => handleMouseMove(e, eqHolder));
 
-    canvas.addEventListener("wheel", e => handleScroll(e, eqHolder));
+        // canvas.addEventListener("touchstart", e => handleMouseDown(e, eqHolder));
+        // canvas.addEventListener("touchmove", e => handleMouseUp(e, eqHolder));
+        // canvas.addEventListener("touchend", e => handleMouseMove(e, eqHolder));
 
-    renderEq(eqHolder);
+        canvas.addEventListener("wheel", e => handleScroll(e, eqHolder));
+    }
+
+    eq.clients.push({ update: _ => renderEq(eqHolder) });
+
+    eq.updateClients();
 }
 
 function handleMouseDown(e, eqHolder) {
@@ -87,12 +149,12 @@ function handleMouseUp(e, eqHolder) {
 
     const eq = eqHolder.eq;
 
-    if (eqHolder.pressedButton == 2 && eqHolder.activeBand >= 0) {
+    if (eqHolder.pressedButton === 2 && eqHolder.activeBand >= 0) {
         const activeBand = eq.bands[eqHolder.activeBand];
         activeBand.disabled = !activeBand.disabled;
     }
     eqHolder.activeBand = -1;
-    renderEq(eqHolder);
+    eq.updateClients();
 }
 
 function handleMouseMove(e, eqHolder) {
@@ -117,7 +179,7 @@ function handleMouseMove(e, eqHolder) {
         const newGain = eq.minGain + newYRel * (eq.maxGain - eq.minGain);
         eq.bands[eqHolder.activeBand].gain = Math.max(eq.minGain, Math.min(newGain, eq.maxGain));
 
-        renderEq(eqHolder);
+        eq.updateClients();
     }
 }
 
@@ -133,7 +195,7 @@ function handleScroll(e, eqHolder) {
 
     e.preventDefault();
 
-    renderEq(eqHolder);
+    eq.updateClients();
 }
 
 function findClosestBand(e, eqHolder) {
@@ -196,7 +258,9 @@ function renderEq(eqHolder) {
         ctx.strokeStyle = band.disabled ? eqHolder.colors.disabledBandStroke : eqHolder.colors.bandStroke;
         ctx.stroke();
 
-        renderDot(eqHolder, band, ctx, xOffset, yOffset, width, height);
+        if (!eqHolder.miniature) {
+            renderDot(eqHolder, band, ctx, xOffset, yOffset, width, height);
+        }
     }
 
     ctx.beginPath();
@@ -228,31 +292,33 @@ function renderGrid(ctx, eqHolder) {
 
     // minor grid
 
-    ctx.beginPath();
-    for (let i = minExp - 1; i <= maxExp; i++) {
-        for (let j = 2; j < 10; j++) {
-            let frequency = j * Math.pow(10, i);
-            if (frequency > eq.minFrequency && frequency < eq.maxFrequency) {
-                const x = Math.floor(xOffset + logAbsToLinRel(frequency, eq.minFrequency, eq.maxFrequency) * width) + 0.5;
-                const y1 = yOffset;
-                const y2 = yOffset + height;
-                ctx.moveTo(x, y1);
-                ctx.lineTo(x, y2);
+    if (!eqHolder.miniature) {
+        ctx.beginPath();
+        for (let i = minExp - 1; i <= maxExp; i++) {
+            for (let j = 2; j < 10; j++) {
+                let frequency = j * Math.pow(10, i);
+                if (frequency > eq.minFrequency && frequency < eq.maxFrequency) {
+                    const x = Math.floor(xOffset + logAbsToLinRel(frequency, eq.minFrequency, eq.maxFrequency) * width) + 0.5;
+                    const y1 = yOffset;
+                    const y2 = yOffset + height;
+                    ctx.moveTo(x, y1);
+                    ctx.lineTo(x, y2);
+                }
             }
         }
-    }
-    for (let i = minMinorMult; i <= maxMinorMult; i++) {
-        const gain = i * 3;
-        if (gain % 6 != 0) {
-            const x1 = xOffset;
-            const x2 = xOffset + width;
-            const y = Math.floor(yOffset + (1 - linAbsToLinRel(gain, eq.minGain, eq.maxGain)) * height) + 0.5;
-            ctx.moveTo(x1, y);
-            ctx.lineTo(x2, y);
+        for (let i = minMinorMult; i <= maxMinorMult; i++) {
+            const gain = i * 3;
+            if (gain % 6 !== 0) {
+                const x1 = xOffset;
+                const x2 = xOffset + width;
+                const y = Math.floor(yOffset + (1 - linAbsToLinRel(gain, eq.minGain, eq.maxGain)) * height) + 0.5;
+                ctx.moveTo(x1, y);
+                ctx.lineTo(x2, y);
+            }
         }
+        ctx.strokeStyle = eqHolder.colors.gridStrokeMinor;
+        ctx.stroke();
     }
-    ctx.strokeStyle = eqHolder.colors.gridStrokeMinor;
-    ctx.stroke();
 
     // major grid
 
@@ -260,26 +326,30 @@ function renderGrid(ctx, eqHolder) {
     for (let i = minExp; i <= maxExp; i++) {
         const frequency = Math.pow(10, i);
         const x = Math.floor(xOffset + logAbsToLinRel(frequency, eq.minFrequency, eq.maxFrequency) * width) + 0.5;
-        const y1 = yOffset + parseFloat(eqHolder.labelGapTop);
+        const y1 = eqHolder.miniature ? yOffset : yOffset + parseFloat(eqHolder.labelGapTop);
         const y2 = yOffset + height;
         ctx.moveTo(x, y1);
         ctx.lineTo(x, y2);
-        ctx.font = eqHolder.font;
-        ctx.textAlign = "center";
-        ctx.fillStyle = eqHolder.colors.gridStrokeMajor;
-        ctx.fillText(formatFrequencyLabel(frequency), x, yOffset + parseFloat(eqHolder.labelGapTop) / 2 + parseFloat(eqHolder.font) / 2);
+        if (!eqHolder.miniature) {
+            ctx.font = eqHolder.font;
+            ctx.textAlign = "center";
+            ctx.fillStyle = eqHolder.colors.gridStrokeMajor;
+            ctx.fillText(formatFrequencyLabel(frequency), x, yOffset + parseFloat(eqHolder.labelGapTop) / 2 + parseFloat(eqHolder.font) / 2);
+        }
     }
     for (let i = minMult; i <= maxMult; i++) {
         const gain = i * 6;
-        const x1 = xOffset + parseFloat(eqHolder.labelGapLeft);
+        const x1 = eqHolder.miniature ? xOffset : xOffset + parseFloat(eqHolder.labelGapLeft);
         const x2 = xOffset + width;
         const y = Math.floor(yOffset + (1 - linAbsToLinRel(gain, eq.minGain, eq.maxGain)) * height) + 0.5;
         ctx.moveTo(x1, y);
         ctx.lineTo(x2, y);
-        ctx.font = eqHolder.font;
-        ctx.textAlign = "center";
-        ctx.fillStyle = eqHolder.colors.gridStrokeMajor;
-        ctx.fillText(formatGainLabel(gain), xOffset + parseFloat(eqHolder.labelGapLeft) / 2, y + parseFloat(eqHolder.font) / 2);
+        if (!eqHolder.miniature) {
+            ctx.font = eqHolder.font;
+            ctx.textAlign = "center";
+            ctx.fillStyle = eqHolder.colors.gridStrokeMajor;
+            ctx.fillText(formatGainLabel(gain), xOffset + parseFloat(eqHolder.labelGapLeft) / 2, y + parseFloat(eqHolder.font) / 2);
+        }
     }
     ctx.strokeStyle = eqHolder.colors.gridStrokeMajor;
     ctx.stroke();
@@ -328,7 +398,7 @@ function renderDot(eqHolder, band, ctx, xOffset, yOffset, width, height) {
 }
 
 function dotY(eq, band, yOffset, height) {
-    if (band.type == HIGH_PASS || band.type == LOW_PASS) {
+    if (band.type === HIGH_PASS || band.type === LOW_PASS) {
         return yOffset + (1 - linAbsToLinRel(-3.0, eq.minGain, eq.maxGain)) * height;
     }
     return yOffset + (1 - linAbsToLinRel(band.gain, eq.minGain, eq.maxGain)) * height;
@@ -337,7 +407,7 @@ function dotY(eq, band, yOffset, height) {
 function dotRadius(eq, band, width, height) {
     const maxRadius = Math.min(width / 32, height / 16);
     const minRadius = maxRadius / 4;
-    const q = band.type == HIGH_SHELF || band.type == LOW_SHELF ? 1.0 : band.q;
+    const q = band.type === HIGH_SHELF || band.type === LOW_SHELF ? 1.0 : band.q;
     return minRadius + (1 - logAbsToLinRel(q, eq.minQ, eq.maxQ)) * (maxRadius - minRadius)
 }
 
@@ -390,13 +460,13 @@ function computeGains(band, frequencies) {
 
 function computeGain(band, frequency) {
 
-    if (band.type == BELL) {
+    if (band.type === BELL) {
         return computeBellGain(band, frequency);
-    } else if (band.type == HIGH_PASS) {
+    } else if (band.type === HIGH_PASS) {
         return computeHighPassGain(band, frequency);
-    } else if (band.type == HIGH_SHELF) {
+    } else if (band.type === HIGH_SHELF) {
         return computeHighShelfGain(band, frequency);
-    } else if (band.type == LOW_SHELF) {
+    } else if (band.type === LOW_SHELF) {
         return computeLowShelfGain(band, frequency);
     }
 }
@@ -426,7 +496,7 @@ function computeHighPassGain(band, frequency) {
     const f1 = square(f0);
     const f2 = square(f1);
     const order = Math.max(0, Math.min(2 + Math.floor(2 * Math.log10(band.q)), 5));
-    const ordOff = order == 0 ? 1 : order;
+    const ordOff = order === 0 ? 1 : order;
 
     let d = 1;
 
@@ -517,3 +587,14 @@ function sqrt(n) {
 function toDB(p) {
     return 20 * Math.log10(p);
 }
+
+function distribute(bands, minF, maxF) {
+    const len = bands.length;
+    const deltaRel = 1.0 / len;
+    for (let i = 0; i < len; i++) {
+        const freq = linRelToLogAbs((i + 0.5) * deltaRel, minF, maxF);
+        bands[i].frequency = freq;
+    }
+}
+
+export default EQ;
