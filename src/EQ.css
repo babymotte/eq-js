@@ -1,7 +1,13 @@
+#dynamicallyResizingEq {
+    width: 100%;
+    height: 100%;
+    max-height: 1080px;
+}
+
 .EQ {
     background: radial-gradient(ellipse at top, #333, #222);
-    --font: 12pt 'Noto Sans', 'Noto Sans Regular', 'Roboto', 'Oxygen', 'Cantarell', 'Droid Sans', 'Helvetica Neue', 'Helvetica', sans-serif;
-    --title-font: 32pt 'Noto Sans', 'Noto Sans Regular', 'Roboto', 'Oxygen', 'Cantarell', 'Droid Sans', 'Helvetica Neue', 'Helvetica', sans-serif;
+    --font: 10pt 'Noto Sans', 'Noto Sans Regular', 'Roboto', 'Oxygen', 'Cantarell', 'Droid Sans', 'Helvetica Neue', 'Helvetica', sans-serif;
+    --title-font: 20pt 'Noto Sans', 'Noto Sans Regular', 'Roboto', 'Oxygen', 'Cantarell', 'Droid Sans', 'Helvetica Neue', 'Helvetica', sans-serif;
     --title-fill: #999;
     --grid-stroke-major: #666;
     --grid-stroke-minor: #444;
@@ -11,9 +17,8 @@
     --band-fill: var(--sum-fill);
     --disabled-bandStroke: #8884;
     --disabled-bandFill: #8882;
-    --label-gap-top: 32px;
-    --label-gap-left: 64px;
-    margin: 32px;
+    --label-gap-top: 24px;
+    --label-gap-left: 46px;
 }
 
 #miniatures .EQ {

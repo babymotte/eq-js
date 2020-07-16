@@ -59,18 +59,20 @@ export class EQ extends Component {
     constructor(props) {
         super(props);
         this.canvas = React.createRef();
+        this.canvasHolder = React.createRef();
         this.eq = props.eq;
     }
 
     componentDidMount = () => {
         const canvas = this.canvas.current;
-        initEq(this.eq, canvas, 0, 0, canvas.width, canvas.height, this.props.displayOnly, this.props.miniature, this.props.title);
+        const canvasHolder = this.canvasHolder.current;
+        initEq(this.eq, canvas, canvasHolder, this.props.displayOnly, this.props.miniature, this.props.title, this.props.dynResize);
     }
 
-    render = () => <canvas ref={this.canvas} className="EQ" width={this.props.width} height={this.props.height} />
+    render = () => <div id={this.props.id} ref={this.canvasHolder}><canvas ref={this.canvas} className="EQ" width={this.props.width} height={this.props.height} /></div>
 }
 
-function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniature, title) {
+function initEq(eq, canvas, canvasHolder, displayOnly, miniature, title, dynResize) {
 
     const elementStyle = window.getComputedStyle(canvas, null);
 
@@ -91,10 +93,6 @@ function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniat
     const eqHolder = {
         eq: eq,
         canvas: canvas,
-        xOffset: xOffset,
-        yOffset: yOffset,
-        width: width,
-        height: height,
         activeBand: -1,
         mouseX: -1,
         mouseY: -1,
@@ -115,6 +113,7 @@ function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniat
         },
         miniature: miniature,
         title: title,
+        dynResize: dynResize,
     };
 
     if (!displayOnly) {
@@ -134,7 +133,17 @@ function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniat
 
     eq.clients.push({ update: _ => renderEq(eqHolder) });
 
-    eq.updateClients();
+    if (dynResize) {
+        new ResizeObserver(() => {
+            canvas.width = canvasHolder.clientWidth;
+            canvas.height = canvasHolder.clientHeight;
+            renderEq(eqHolder);
+        }).observe(canvasHolder);
+        canvas.width = canvasHolder.clientWidth;
+        canvas.height = canvasHolder.clientHeight;
+    }
+
+    renderEq(eqHolder);
 }
 
 function handleMouseDown(e, eqHolder) {
@@ -165,11 +174,13 @@ function handleMouseUp(e, eqHolder) {
 function handleMouseMove(e, eqHolder) {
 
     const eq = eqHolder.eq;
+    const width = eqHolder.canvas.width;
+    const height = eqHolder.canvas.height;
 
     if (eqHolder.activeBand >= 0) {
 
         const deltaX = e.offsetX - eqHolder.mouseX;
-        const deltaXRel = deltaX / eqHolder.width;
+        const deltaXRel = deltaX / width;
         const origFrequency = eqHolder.freqOnMouseDown;
         const xOrigRel = logAbsToLinRel(origFrequency, eq.minFrequency, eq.maxFrequency);
         const newXRel = xOrigRel + deltaXRel;
@@ -177,7 +188,7 @@ function handleMouseMove(e, eqHolder) {
         eq.bands[eqHolder.activeBand].frequency = Math.max(eq.minFrequency, Math.min(newFrequency, eq.maxFrequency));
 
         const deltaY = eqHolder.mouseY - e.offsetY;
-        const deltaYRel = deltaY / eqHolder.height;
+        const deltaYRel = deltaY / height;
         const origGain = eqHolder.gainOnMouseDown;
         const yOrigRel = (origGain - eq.minGain) / (eq.maxGain - eq.minGain);
         const newYRel = yOrigRel + deltaYRel;
@@ -206,15 +217,17 @@ function handleScroll(e, eqHolder) {
 function findClosestBand(e, eqHolder) {
 
     const eq = eqHolder.eq;
-    const width = eqHolder.width;
-    const height = eqHolder.height;
+    const width = eqHolder.canvas.width;
+    const height = eqHolder.canvas.height;
+    const xOffset = 0;
+    const yOffset = 0;
 
     let closestBand = 0;
     let closestDistance = 2 * Math.max(width, height);
     for (let i = 0; i < eq.bands.length; i++) {
         const band = eq.bands[i];
-        const xScreen = eqHolder.xOffset + logAbsToLinRel(band.frequency, eq.minFrequency, eq.maxFrequency) * width;
-        const yScreen = eqHolder.yOffset + (1 - linAbsToLinRel(band.gain, eq.minGain, eq.maxGain)) * height;
+        const xScreen = xOffset + logAbsToLinRel(band.frequency, eq.minFrequency, eq.maxFrequency) * width;
+        const yScreen = yOffset + (1 - linAbsToLinRel(band.gain, eq.minGain, eq.maxGain)) * height;
         const dx = xScreen - e.offsetX;
         const dy = yScreen - e.offsetY;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -230,10 +243,10 @@ function renderEq(eqHolder) {
 
     const eq = eqHolder.eq;
     const canvas = eqHolder.canvas;
-    const xOffset = eqHolder.xOffset;
-    const yOffset = eqHolder.yOffset;
-    const width = eqHolder.width;
-    const height = eqHolder.height;
+    const xOffset = 0;
+    const yOffset = 0;
+    const width = eqHolder.canvas.width;
+    const height = eqHolder.canvas.height;
 
     const ctx = canvas.getContext("2d");
     ctx.clearRect(xOffset, yOffset, width, height);
@@ -284,10 +297,10 @@ function renderEq(eqHolder) {
 function renderGrid(ctx, eqHolder) {
 
     const eq = eqHolder.eq;
-    const xOffset = eqHolder.xOffset;
-    const yOffset = eqHolder.yOffset;
-    const width = eqHolder.width;
-    const height = eqHolder.height;
+    const xOffset = 0;
+    const yOffset = 0;
+    const width = eqHolder.canvas.width;
+    const height = eqHolder.canvas.height;
 
     const minExp = Math.ceil(Math.log10(eq.minFrequency));
     const maxExp = Math.floor(Math.log10(eq.maxFrequency));
