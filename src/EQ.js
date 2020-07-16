@@ -64,13 +64,13 @@ export class EQ extends Component {
 
     componentDidMount = () => {
         const canvas = this.canvas.current;
-        initEq(this.eq, canvas, 0, 0, canvas.width, canvas.height, this.props.displayOnly, this.props.miniature);
+        initEq(this.eq, canvas, 0, 0, canvas.width, canvas.height, this.props.displayOnly, this.props.miniature, this.props.title);
     }
 
     render = () => <canvas ref={this.canvas} className="EQ" width={this.props.width} height={this.props.height} />
 }
 
-function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniature) {
+function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniature, title) {
 
     const elementStyle = window.getComputedStyle(canvas, null);
 
@@ -85,6 +85,7 @@ function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniat
     const labelGapTop = elementStyle.getPropertyValue("--label-gap-top");
     const labelGapLeft = elementStyle.getPropertyValue("--label-gap-left");
     const font = elementStyle.getPropertyValue("--font");
+    const titleFont = elementStyle.getPropertyValue("--title-font");
 
     const eqHolder = {
         eq: eq,
@@ -109,7 +110,9 @@ function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniat
         labelGapTop: labelGapTop,
         labelGapLeft: labelGapLeft,
         font: font,
+        titleFont: titleFont,
         miniature: miniature,
+        title: title,
     };
 
     if (!displayOnly) {
@@ -253,12 +256,13 @@ function renderEq(eqHolder) {
             }
         }
 
-        ctx.beginPath();
-        renderCurve(eq, ctx, gainsPerPixel, xOffset, yOffset, width, height);
-        ctx.strokeStyle = band.disabled ? eqHolder.colors.disabledBandStroke : eqHolder.colors.bandStroke;
-        ctx.stroke();
-
         if (!eqHolder.miniature) {
+
+            ctx.beginPath();
+            renderCurve(eq, ctx, gainsPerPixel, xOffset, yOffset, width, height);
+            ctx.strokeStyle = band.disabled ? eqHolder.colors.disabledBandStroke : eqHolder.colors.bandStroke;
+            ctx.stroke();
+
             renderDot(eqHolder, band, ctx, xOffset, yOffset, width, height);
         }
     }
@@ -353,6 +357,14 @@ function renderGrid(ctx, eqHolder) {
     }
     ctx.strokeStyle = eqHolder.colors.gridStrokeMajor;
     ctx.stroke();
+
+    if (eqHolder.title) {
+        ctx.font = eqHolder.titleFont;
+        ctx.textAlign = "end";
+        ctx.fillStyle = eqHolder.colors.gridStrokeMajor;
+        const inset = Math.min(width, height) * 0.05;
+        ctx.fillText(eqHolder.title, xOffset + width - inset, yOffset + height - inset);
+    }
 }
 
 function formatFrequencyLabel(frequency) {

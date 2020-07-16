@@ -18,7 +18,7 @@ const eqModel = new EqModel({
 function App() {
   return (
     <div>
-      <EQ width={width} height={height} eq={eqModel} displayOnly={false} miniature={false} />
+      <EQ width={width} height={height} eq={eqModel} title="Equalizer" />
       <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
       <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
       <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
