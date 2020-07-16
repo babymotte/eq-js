@@ -7,7 +7,7 @@
 .EQ {
     background: radial-gradient(ellipse at top, #333, #222);
     --font: 10pt 'Noto Sans', 'Noto Sans Regular', 'Roboto', 'Oxygen', 'Cantarell', 'Droid Sans', 'Helvetica Neue', 'Helvetica', sans-serif;
-    --title-font: 20pt 'Noto Sans', 'Noto Sans Regular', 'Roboto', 'Oxygen', 'Cantarell', 'Droid Sans', 'Helvetica Neue', 'Helvetica', sans-serif;
+    --title-font: 32pt 'Noto Sans', 'Noto Sans Regular', 'Roboto', 'Oxygen', 'Cantarell', 'Droid Sans', 'Helvetica Neue', 'Helvetica', sans-serif;
     --title-fill: #999;
     --grid-stroke-major: #666;
     --grid-stroke-minor: #444;

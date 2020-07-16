@@ -373,11 +373,13 @@ function renderGrid(ctx, eqHolder) {
     ctx.strokeStyle = eqHolder.style.gridStrokeMajor;
     ctx.stroke();
 
+    // title
+
     if (eqHolder.title) {
         ctx.font = eqHolder.style.titleFont;
         ctx.textAlign = "end";
         ctx.fillStyle = eqHolder.style.titleFill;
-        const inset = 2 + Math.min(width, height) * 0.05;
+        const inset = Math.min(2 * parseFloat(eqHolder.style.font), 2 + Math.min(width, height) * 0.05);
         ctx.fillText(eqHolder.title, xOffset + width - inset, yOffset + height - inset);
     }
 }
