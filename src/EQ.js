@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './EQ.css';
+import normalizeWheel from './normalizeWheel';
 
 export const BELL = 0;
 export const HIGH_SHELF = 1;
@@ -201,10 +202,12 @@ function handleMouseMove(e, eqHolder) {
 
 function handleScroll(e, eqHolder) {
 
+    const normalized = normalizeWheel(e);
+
     const eq = eqHolder.eq;
     const closestBand = findClosestBand(e, eqHolder);
-    const pixelDeltaY = -e.deltaY;
-    const modifier = 1 - pixelDeltaY * 0.05;
+    const pixelDeltaY = -normalized.pixelY;
+    const modifier = 1 - pixelDeltaY * 0.0015;
     const newValue = eq.bands[closestBand].q * modifier;
 
     eq.bands[closestBand].q = Math.max(eq.minQ, Math.min(newValue, eq.maxQ));
