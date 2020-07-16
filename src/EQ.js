@@ -97,7 +97,7 @@ function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniat
         activeBand: -1,
         mouseX: -1,
         mouseY: -1,
-        colors: {
+        style: {
             bandStroke: bandStroke || "#642",
             bandFill: bandFill || "#f954",
             disabledBandStroke: disabledBandStroke || "#8884",
@@ -106,11 +106,11 @@ function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniat
             sumFill: sumFill || "#f954",
             gridStrokeMajor: gridStrokeMajor || "#888",
             gridStrokeMinor: gridStrokeMinor || "#8884",
+            labelGapTop: labelGapTop || 32,
+            labelGapLeft: labelGapLeft || 64,
+            font: font || "12pt sans-serif",
+            titleFont: titleFont || "32pt sans-serif",
         },
-        labelGapTop: labelGapTop,
-        labelGapLeft: labelGapLeft,
-        font: font,
-        titleFont: titleFont,
         miniature: miniature,
         title: title,
     };
@@ -260,7 +260,7 @@ function renderEq(eqHolder) {
 
             ctx.beginPath();
             renderCurve(eq, ctx, gainsPerPixel, xOffset, yOffset, width, height);
-            ctx.strokeStyle = band.disabled ? eqHolder.colors.disabledBandStroke : eqHolder.colors.bandStroke;
+            ctx.strokeStyle = band.disabled ? eqHolder.style.disabledBandStroke : eqHolder.style.bandStroke;
             ctx.stroke();
 
             renderDot(eqHolder, band, ctx, xOffset, yOffset, width, height);
@@ -269,13 +269,13 @@ function renderEq(eqHolder) {
 
     ctx.beginPath();
     renderCurve(eq, ctx, sum, xOffset, yOffset, width, height);
-    ctx.strokeStyle = eqHolder.colors.sumStroke;
+    ctx.strokeStyle = eqHolder.style.sumStroke;
     ctx.stroke();
 
     ctx.lineTo(xOffset + width, yOffset + height / 2 + 0.5);
     ctx.lineTo(xOffset, yOffset + height / 2 + 0.5);
 
-    ctx.fillStyle = eqHolder.colors.sumFill;
+    ctx.fillStyle = eqHolder.style.sumFill;
     ctx.fill();
 }
 
@@ -320,7 +320,7 @@ function renderGrid(ctx, eqHolder) {
                 ctx.lineTo(x2, y);
             }
         }
-        ctx.strokeStyle = eqHolder.colors.gridStrokeMinor;
+        ctx.strokeStyle = eqHolder.style.gridStrokeMinor;
         ctx.stroke();
     }
 
@@ -330,38 +330,38 @@ function renderGrid(ctx, eqHolder) {
     for (let i = minExp; i <= maxExp; i++) {
         const frequency = Math.pow(10, i);
         const x = Math.floor(xOffset + logAbsToLinRel(frequency, eq.minFrequency, eq.maxFrequency) * width) + 0.5;
-        const y1 = eqHolder.miniature ? yOffset : yOffset + parseFloat(eqHolder.labelGapTop);
+        const y1 = eqHolder.miniature ? yOffset : yOffset + parseFloat(eqHolder.style.labelGapTop);
         const y2 = yOffset + height;
         ctx.moveTo(x, y1);
         ctx.lineTo(x, y2);
         if (!eqHolder.miniature) {
-            ctx.font = eqHolder.font;
+            ctx.font = eqHolder.style.font;
             ctx.textAlign = "center";
-            ctx.fillStyle = eqHolder.colors.gridStrokeMajor;
-            ctx.fillText(formatFrequencyLabel(frequency), x, yOffset + parseFloat(eqHolder.labelGapTop) / 2 + parseFloat(eqHolder.font) / 2);
+            ctx.fillStyle = eqHolder.style.gridStrokeMajor;
+            ctx.fillText(formatFrequencyLabel(frequency), x, yOffset + parseFloat(eqHolder.style.labelGapTop) / 2 + parseFloat(eqHolder.style.font) / 2);
         }
     }
     for (let i = minMult; i <= maxMult; i++) {
         const gain = i * 6;
-        const x1 = eqHolder.miniature ? xOffset : xOffset + parseFloat(eqHolder.labelGapLeft);
+        const x1 = eqHolder.miniature ? xOffset : xOffset + parseFloat(eqHolder.style.labelGapLeft);
         const x2 = xOffset + width;
         const y = Math.floor(yOffset + (1 - linAbsToLinRel(gain, eq.minGain, eq.maxGain)) * height) + 0.5;
         ctx.moveTo(x1, y);
         ctx.lineTo(x2, y);
         if (!eqHolder.miniature) {
-            ctx.font = eqHolder.font;
+            ctx.font = eqHolder.style.font;
             ctx.textAlign = "center";
-            ctx.fillStyle = eqHolder.colors.gridStrokeMajor;
-            ctx.fillText(formatGainLabel(gain), xOffset + parseFloat(eqHolder.labelGapLeft) / 2, y + parseFloat(eqHolder.font) / 2);
+            ctx.fillStyle = eqHolder.style.gridStrokeMajor;
+            ctx.fillText(formatGainLabel(gain), xOffset + parseFloat(eqHolder.style.labelGapLeft) / 2, y + parseFloat(eqHolder.style.font) / 2);
         }
     }
-    ctx.strokeStyle = eqHolder.colors.gridStrokeMajor;
+    ctx.strokeStyle = eqHolder.style.gridStrokeMajor;
     ctx.stroke();
 
     if (eqHolder.title) {
-        ctx.font = eqHolder.titleFont;
+        ctx.font = eqHolder.style.titleFont;
         ctx.textAlign = "end";
-        ctx.fillStyle = eqHolder.colors.gridStrokeMajor;
+        ctx.fillStyle = eqHolder.style.gridStrokeMajor;
         const inset = Math.min(width, height) * 0.05;
         ctx.fillText(eqHolder.title, xOffset + width - inset, yOffset + height - inset);
     }
@@ -400,12 +400,12 @@ function renderDot(eqHolder, band, ctx, xOffset, yOffset, width, height) {
 
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = band.disabled ? eqHolder.colors.disabledBandFill : eqHolder.colors.bandFill;
+    ctx.fillStyle = band.disabled ? eqHolder.style.disabledBandFill : eqHolder.style.bandFill;
     ctx.fill();
 
     ctx.beginPath();
     ctx.arc(x, y, 2, 0, 2 * Math.PI);
-    ctx.fillStyle = band.disabled ? eqHolder.colors.disabledBandStroke : eqHolder.colors.sumStroke;
+    ctx.fillStyle = band.disabled ? eqHolder.style.disabledBandStroke : eqHolder.style.sumStroke;
     ctx.fill();
 }
 
