@@ -27,7 +27,7 @@ export class EqModel {
         for (let band of eqData.bands) {
             bands.push({
                 gain: 0,
-                frequency: 1_000,
+                frequency: 1000,
                 q: 1.0,
                 type: band,
             })
@@ -388,8 +388,8 @@ function renderGrid(ctx, eqHolder) {
 }
 
 function formatFrequencyLabel(frequency) {
-    const f = frequency >= 1_000 ? frequency / 1_000 : frequency;
-    const unit = frequency >= 1_000 ? 'kHz' : 'Hz';
+    const f = frequency >= 1000 ? frequency / 1000 : frequency;
+    const unit = frequency >= 1000 ? 'kHz' : 'Hz';
     return `${f} ${unit}`;
 }
 
