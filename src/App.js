@@ -18,26 +18,29 @@ const eqModel = new EqModel({
 function App() {
   return (
     <div>
-      <EQ width={width} height={height} eq={eqModel} title="Equalizer" />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
-      <EQ width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} />
+      <EQ id="mainEq" width={width} height={height} eq={eqModel} title="Equalizer" />
+      <div id="miniatures">
+        <EQ id="minEq1" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq2" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq3" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq4" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq5" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq6" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq7" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq8" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq9" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq10" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq11" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq12" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq13" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq14" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq15" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq16" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq17" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq18" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq19" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+        <EQ id="minEq20" width={width / 10} height={height / 10} eq={eqModel} displayOnly={true} miniature={true} title="EQ" />
+      </div>
     </div>
   );
 }

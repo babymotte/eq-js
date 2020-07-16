@@ -86,6 +86,7 @@ function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniat
     const labelGapLeft = elementStyle.getPropertyValue("--label-gap-left");
     const font = elementStyle.getPropertyValue("--font");
     const titleFont = elementStyle.getPropertyValue("--title-font");
+    const titleFill = elementStyle.getPropertyValue("--title-fill");
 
     const eqHolder = {
         eq: eq,
@@ -110,6 +111,7 @@ function initEq(eq, canvas, xOffset, yOffset, width, height, displayOnly, miniat
             labelGapLeft: labelGapLeft || 64,
             font: font || "12pt sans-serif",
             titleFont: titleFont || "32pt sans-serif",
+            titleFill: titleFill || "#333",
         },
         miniature: miniature,
         title: title,
@@ -361,8 +363,8 @@ function renderGrid(ctx, eqHolder) {
     if (eqHolder.title) {
         ctx.font = eqHolder.style.titleFont;
         ctx.textAlign = "end";
-        ctx.fillStyle = eqHolder.style.gridStrokeMajor;
-        const inset = Math.min(width, height) * 0.05;
+        ctx.fillStyle = eqHolder.style.titleFill;
+        const inset = 2 + Math.min(width, height) * 0.05;
         ctx.fillText(eqHolder.title, xOffset + width - inset, yOffset + height - inset);
     }
 }
